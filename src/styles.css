@@ -2,7 +2,7 @@ html { overflow-x: hidden; }
 
 @font-face {
   font-family: 'Kosugi Maru';
-  src: url('../KosugiMaru-Regular.ttf') format('truetype');
+  src: url('../assets/KosugiMaru-Regular.ttf') format('truetype');
   font-display: swap;
 }
 
@@ -67,11 +67,11 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
 .arm {
   /* Pivot (1585, 1585) on the original 2000 × 4050 canvas. */
   transform-origin: 79.25% 39.135802%;
-  animation: wave 4s ease-in-out infinite;
+  animation: wave 2.8s ease-in-out infinite;
 }
 @keyframes wave {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-42deg); }
+  50% { transform: rotate(-28deg); }
 }
 @media (max-width: 700px) {
   .title-card { grid-template-columns: 1fr; gap: 0; padding: 24px 24px 0; }
@@ -81,7 +81,7 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   .artwork { max-width: 360px; justify-self: center; margin-top: -24px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .arm { animation: none; }
+  .arm, .arm.waving { animation: none; }
   .pupil { transition: none; }
   .logo { transition: none; }
   .logo:hover { transform: none; }
@@ -105,7 +105,6 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   justify-self: center;
   height: auto;
   transform-origin: 50% 85%;
-  animation: computer-rock 4s ease-in-out infinite;
 }
 .career-section h2 {
   margin: 0;

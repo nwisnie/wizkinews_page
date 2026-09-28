@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import logo from '../assets/images/branding/Wizkinews_logo.png';
+import faviconIcon from '../assets/enemy_cube.png';
 import mainImage from '../assets/images/character/me_me_main.png';
 import armImage from '../assets/images/character/me_me_arm.png';
 import eyeWhites from '../assets/images/character/me_me_eye_whites.png';
@@ -20,6 +21,12 @@ import sciLegs from '../assets/images/characters/scientist/sci_guy_legs.png';
 import sciBody from '../assets/images/characters/scientist/sci_guy_body.png';
 import sciHead from '../assets/images/characters/scientist/sci_guy_head.png';
 import './styles.css';
+
+const favicon = document.createElement('link');
+favicon.rel = 'icon';
+favicon.type = 'image/png';
+favicon.href = faviconIcon;
+document.head.appendChild(favicon);
 
 const randomBetween = (min, max) => min + Math.random() * (max - min);
 
@@ -117,10 +124,10 @@ function CharacterGallery() {
 
 function ArtMarquee() {
   const messages = [
-    'If ur pussy don\'t smell like wet monkey scalp I do NOT want it',
-    'fuck all these kids getting iPhones for Christmas all I got was the clap smfh',
-    'morning pussy is dangerous it been marinating all night',
-    'swag punch a bitch'
+    'If I see another ad I\'m killing my dog',
+    'These fellas so PUSSY I jack off when I see em!',
+    'id fuck someone in the ass for some dumplings rn',
+    'why the fuck my@dick so small'
   ];
   return (
     <section id="art" className="art-banner" aria-labelledby="art-banner-title">
@@ -140,10 +147,10 @@ function ArtMarquee() {
 
 function ReverseMarquee() {
   const messages = [
-    'If I see another ad I\'m killing my dog',
-    'These fellas so PUSSY I jack off when I see em!',
-    'id fuck someone in the ass for some dumplings rn',
-    'why the fuck my@dick so small'
+    'If ur pussy don\'t smell like wet monkey scalp I do NOT want it',
+    'fuck all these kids getting iPhones for Christmas all I got was the clap smfh',
+    'morning pussy is dangerous it been marinating all night',
+    'swag punch a bitch'
   ];
   return (
     <section className="art-banner art-banner-reverse" aria-labelledby="reverse-banner-title">

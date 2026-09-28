@@ -180,7 +180,7 @@ function App() {
       <ReverseMarquee />
       <section id="work" className="career-section" aria-labelledby="work-title">
         <img className="computer-dude" src={computerDude} alt="A smiling cartoon computer" width="918" height="1027" loading="lazy" />
-        <h2 id="work-title">Please give me a job :)</h2>
+        <h2 id="work-title">I will add more stuff here when I feel like it :)</h2>
         {/* <div className="career-details">
           <div className="work-experience">
             <article className="experience-entry">
@@ -220,7 +220,7 @@ function App() {
       </section>
     </main>
     <footer className="site-footer">
-      <p className="footer-credit">made with <span>love</span> by ChatGPT &lt;3</p>
+      <p className="footer-credit">made with <span>hate</span> by Noah W. &lt;3</p>
       <div className="social-links" aria-label="Social links">
         <a href="#instagram" aria-label="Instagram">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" className="icon-fill" /></svg>

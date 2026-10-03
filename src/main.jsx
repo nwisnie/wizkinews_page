@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import logo from '../assets/images/branding/Wizkinews_logo.png';
 import faviconIcon from '../assets/enemy_cube.png';
@@ -9,17 +9,14 @@ import eyeLeft from '../assets/images/character/me_me_eye_left.png';
 import eyeRight from '../assets/images/character/me_me_eye_right.png';
 import eyesClosed from '../assets/images/character/me_me_eyes_closed.png';
 import computerDude from '../assets/images/characters/computer/computer_dude.png';
-import bigLegs from '../assets/images/characters/big-guy/big_guy_legs.png';
-import bigBody from '../assets/images/characters/big-guy/big_guy_body.png';
-import bigHead from '../assets/images/characters/big-guy/big_guy_head.png';
-import dogLegs from '../assets/images/characters/greater-dog/great_dog_legs.png';
-import dogBody from '../assets/images/characters/greater-dog/grater_dog_body.png';
-import dogHead from '../assets/images/characters/greater-dog/greater_dog_head.png';
-import girlLegs from '../assets/images/characters/girl/girl_not_good_legs.png';
-import girlUpper from '../assets/images/characters/girl/girl_not_good_upper.png';
-import sciLegs from '../assets/images/characters/scientist/sci_guy_legs.png';
-import sciBody from '../assets/images/characters/scientist/sci_guy_body.png';
-import sciHead from '../assets/images/characters/scientist/sci_guy_head.png';
+import bigGuy from '../assets/images/characters/marquee/big_guy_full.png';
+import armoredDog from '../assets/images/characters/marquee/grater_dog_full.png';
+import blueHairedGirl from '../assets/images/characters/marquee/girl_not_good_full.png';
+import scientist from '../assets/images/characters/marquee/sci_guy_full.png';
+import hazDude from '../assets/images/characters/marquee/haz_dude_full.png';
+import hazThick from '../assets/images/characters/marquee/haz_thick_full.png';
+import hazBig from '../assets/images/characters/marquee/haz_big.png';
+import idkGirl from '../assets/images/characters/marquee/idk_girl_full.png';
 import './styles.css';
 
 const favicon = document.createElement('link');
@@ -96,28 +93,66 @@ function Character() {
 }
 
 const showcaseCharacters = [
-  { name: 'A scientist in a lab coat', legs: sciLegs, upper: [sciBody, sciHead], width: 650, height: 1801 },
-  { name: 'An armored dog', legs: dogLegs, upper: [dogBody, dogHead], width: 1071, height: 1560 },
-  { name: 'A girl with blue hair', legs: girlLegs, upper: [girlUpper], legsInFront: true, width: 999, height: 2780 },
-  { name: 'A horned warrior', legs: bigLegs, upper: [bigBody, bigHead], legsInFront: true, upperOffset: '2%', width: 1182, height: 1709 },
+  { name: 'A scientist in a lab coat', src: scientist, width: 585, height: 1723 },
+  { name: 'A girl standing with her arms crossed', src: idkGirl, width: 643, height: 1857, groupEnd: true },
+  { name: 'A girl with blue hair', src: blueHairedGirl, width: 890, height: 2660, groupEnd: true },
+  { name: 'A broad character in a hazmat suit', src: hazThick, width: 812, height: 1336, small: true },
+  { name: 'A character in a hazmat suit', src: hazDude, width: 674, height: 1764 },
+  { name: 'A large character in a hazmat suit', src: hazBig, width: 1170, height: 1754, groupEnd: true },
+  { name: 'A horned warrior', src: bigGuy, width: 1126, height: 1628 },
+  { name: 'An armored dog', src: armoredDog, width: 878, height: 1417, groupEnd: true },
 ];
 
-function CharacterGallery() {
+function MarqueeTrack({ children, className = '', speed = 42 }) {
+  const trackRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    const firstGroup = track?.firstElementChild;
+    if (!track || !firstGroup) return undefined;
+
+    const syncSpeed = () => {
+      const distance = firstGroup.getBoundingClientRect().width;
+      track.style.setProperty('--marquee-duration', `${distance / speed}s`);
+    };
+
+    syncSpeed();
+    const observer = new ResizeObserver(syncSpeed);
+    observer.observe(firstGroup);
+    return () => observer.disconnect();
+  }, [speed]);
+
+  return <div ref={trackRef} className={`marquee-track ${className}`}>{children}</div>;
+}
+
+function CharacterMarquee() {
   return (
-    <section className="character-gallery" aria-label="Character artwork">
-      {showcaseCharacters.map((character, index) => (
-        <div className="character-slot" key={character.name}>
-          <div className="layered-character" role="img" aria-label={character.name}
-            style={{ '--ratio': character.width / character.height, '--breath-delay': `${index * -0.7}s`, '--upper-offset': character.upperOffset ?? '0%' }}>
-            <img src={character.legs} style={{ zIndex: character.legsInFront ? 1 : undefined }} alt="" width={character.width} height={character.height} loading="lazy" />
-            <div className="breathing-upper">
-              {character.upper.map(src => (
-                <img key={src} src={src} style={{ translate: src === bigBody ? '0 -0.5%' : undefined }} alt="" width={character.width} height={character.height} loading="lazy" />
+    <section className="character-marquee" aria-label="Character artwork">
+      <div className="marquee-window">
+        <MarqueeTrack className="character-marquee-track">
+          {[0, 1].map(group => (
+            <div className="character-marquee-group" aria-hidden={group === 1} key={group}>
+              {showcaseCharacters.map(character => (
+                <React.Fragment key={character.name}>
+                  <div
+                    className={`character-slot${character.small ? ' character-slot-small' : ''}`}
+                    style={{ '--character-ratio': character.width / character.height }}
+                  >
+                    <img
+                      src={character.src}
+                      alt={group === 0 ? character.name : ''}
+                      width={character.width}
+                      height={character.height}
+                      loading="lazy"
+                    />
+                  </div>
+                  {character.groupEnd && <span className="character-group-separator" aria-hidden="true">X</span>}
+                </React.Fragment>
               ))}
             </div>
-          </div>
-        </div>
-      ))}
+          ))}
+        </MarqueeTrack>
+      </div>
     </section>
   );
 }
@@ -133,19 +168,19 @@ function ArtMarquee() {
     <section id="art" className="art-banner" aria-labelledby="art-banner-title">
       <h2 className="visually-hidden" id="art-banner-title">Cool Art and Things</h2>
       <div className="marquee-window" aria-hidden="true">
-        <div className="marquee-track">
+        <MarqueeTrack speed={36}>
           {[0, 1].map(group => (
             <div className="marquee-group" key={group}>
               {messages.map(message => <span key={message}>{message} <span className="marquee-separator">X</span></span>)}
             </div>
           ))}
-        </div>
+        </MarqueeTrack>
       </div>
     </section>
   );
 }
 
-function ReverseMarquee() {
+function SecondArtMarquee() {
   const messages = [
     'If ur pussy don\'t smell like wet monkey scalp I do NOT want it',
     'fuck all these kids getting iPhones for Christmas all I got was the clap smfh',
@@ -153,16 +188,16 @@ function ReverseMarquee() {
     'swag punch a bitch'
   ];
   return (
-    <section className="art-banner art-banner-reverse" aria-labelledby="reverse-banner-title">
-      <h2 className="visually-hidden" id="reverse-banner-title">More Art and Things</h2>
+    <section className="art-banner" aria-labelledby="second-banner-title">
+      <h2 className="visually-hidden" id="second-banner-title">More Art and Things</h2>
       <div className="marquee-window" aria-hidden="true">
-        <div className="marquee-track">
+        <MarqueeTrack speed={48}>
           {[0, 1].map(group => (
             <div className="marquee-group" key={group}>
               {messages.map(message => <span key={message}>{message} <span className="marquee-separator">X</span></span>)}
             </div>
           ))}
-        </div>
+        </MarqueeTrack>
       </div>
     </section>
   );
@@ -183,8 +218,8 @@ function App() {
       <Character />
       </section>
       <ArtMarquee />
-      <CharacterGallery />
-      <ReverseMarquee />
+      <CharacterMarquee />
+      <SecondArtMarquee />
       <section id="work" className="career-section" aria-labelledby="work-title">
         <img className="computer-dude" src={computerDude} alt="A smiling cartoon computer" width="918" height="1027" loading="lazy" />
         <h2 id="work-title">I will add more stuff here when I feel like it :)</h2>

@@ -113,67 +113,66 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   line-height: 1.35;
   text-shadow: 2px -2px 0 #fff;
 }
-.character-gallery {
+.character-marquee {
   position: relative;
   z-index: 1;
-  max-width: 1150px;
-  margin: 0 auto;
-  padding: 44px 32px 28px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
+  margin: 0;
+  overflow: hidden;
+  background: #fff;
 }
-.character-slot { position: relative; display: flex; align-items: flex-end; justify-content: center; padding: 18px; }
-.character-slot::before { content: ''; position: absolute; z-index: 0; width: min(115%, 310px); height: 102%; border-radius: 48% 52% 46% 54%; background: #aed6f9; transform: var(--circle-transform, rotate(-3deg) translateY(5%)); }
-.character-slot:nth-child(2)::before { width: 110%; height: 98%; border-radius: 55% 45% 50% 50%; --circle-transform: rotate(5deg) translateY(7%); }
-.character-slot:nth-child(3)::before { width: 120%; height: 109%; border-radius: 45% 55% 52% 48%; --circle-transform: rotate(-6deg) translateY(4%); }
-.character-slot:nth-child(4)::before { width: 112%; height: 96%; border-radius: 52% 48% 44% 56%; --circle-transform: rotate(4deg) translateY(6%); }
-.layered-character {
+.character-marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-end;
+  gap: clamp(8px, 1.5vw, 20px);
+  padding: 20px 10px;
+}
+.character-slot {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  height: clamp(260px, 30vw, 430px);
+  aspect-ratio: var(--character-ratio);
+  align-items: flex-end;
+  justify-content: center;
+  padding: 8px;
+}
+.character-slot-small { height: clamp(208px, 24vw, 344px); }
+.character-group-separator {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-inline: clamp(8px, 1.5vw, 18px);
+  color: #151719;
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: clamp(30px, 3.5vw, 48px);
+  font-weight: 700;
+  line-height: 1;
+}
+.character-slot img {
   position: relative;
   z-index: 1;
+  display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: var(--ratio);
-}
-.layered-character img { position: absolute; inset: 0; width: 100%; height: auto; aspect-ratio: var(--ratio); object-fit: contain; object-position: top center; }
-.character-slot:nth-child(2) .layered-character {
-  transform: translateY(0%) scale(1.35);
-  transform-origin: bottom center;
-}
-.character-slot:nth-child(4) .layered-character {
-  transform: translateY(-6%) scale(1.45);
-  transform-origin: bottom center;
-}
-.breathing-upper {
-  position: absolute;
-  inset: 0;
-  translate: 0 var(--upper-offset, 0%);
-  animation: breathe 3.5s ease-in-out infinite;
-  animation-delay: var(--breath-delay);
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
 }
 @keyframes computer-rock {
   0%, 100% { transform: rotate(-3deg); }
   50% { transform: rotate(3deg); }
 }
-@keyframes breathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-1%); }
-}
 @media (max-width: 700px) {
   .career-section { padding: 24px 24px 48px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; }
   .career-section h2 { font-size: clamp(20px, 4.5vw, 30px); }
   .art-banner { margin-bottom: 16px; }
-  .title-card + .art-banner { margin-bottom: 4px; }
-  .title-card + .art-banner + .character-gallery { padding-top: 0; }
-  .character-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 16px 8px; gap: 12px 16px; }
-  .character-slot::before { display: block; width: 116%; height: 94%; }
-  .character-slot:nth-child(2)::before { width: 108%; height: 88%; }
-  .character-slot:nth-child(3)::before { width: 122%; height: 98%; }
-  .character-slot:nth-child(4)::before { width: 112%; height: 91%; }
-  .layered-character { width: 100%; height: auto; }
+  .title-card + .art-banner { margin-bottom: 0; }
+  .character-marquee-group { gap: 6px; padding: 14px 6px; }
+  .character-slot { height: 245px; padding: 5px; }
+  .character-slot-small { height: 196px; }
+  .character-group-separator { margin-inline: 7px; font-size: 30px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .computer-dude, .breathing-upper { animation: none; }
+  .computer-dude { animation: none; }
 }
 
 .career-details {
@@ -221,8 +220,7 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   color: #fff;
 }
 .marquee-window { flex: 1; min-width: 0; overflow: hidden; }
-.marquee-track { display: flex; width: max-content; animation: art-scroll 80s linear infinite; }
-.art-banner-reverse .marquee-track { animation-name: art-scroll-reverse; }
+.marquee-track { display: flex; width: max-content; animation: art-scroll var(--marquee-duration, 80s) linear infinite; }
 .marquee-group {
   display: flex;
   align-items: center;
@@ -237,13 +235,11 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
 }
 .marquee-separator { margin-left: 40px; }
 @keyframes art-scroll { to { transform: translateX(-50%); } }
-@keyframes art-scroll-reverse { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
 }
-/* Keep the first marquee close to the character row. */
-.title-card + .art-banner { margin-bottom: 12px; }
-.title-card + .art-banner + .character-gallery { padding-top: 12px; }
+/* Join the three marquee bands into one continuous block. */
+.title-card + .art-banner { margin-bottom: 0; }
 
 
 .site-footer { padding: 18px 24px; background: #151719; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 24px; font-size: 14px; line-height: 1.6; }

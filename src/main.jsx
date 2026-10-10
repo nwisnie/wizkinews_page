@@ -15,7 +15,9 @@ import blueHairedGirl from '../assets/images/characters/marquee/girl_not_good_fu
 import scientist from '../assets/images/characters/marquee/sci_guy_full.png';
 import hazDude from '../assets/images/characters/marquee/haz_dude_full.png';
 import hazThick from '../assets/images/characters/marquee/haz_thick_full.png';
-import hazBig from '../assets/images/characters/marquee/haz_big.png';
+import hazBig from '../assets/haz_big_better.png';
+import emoThey from '../assets/emo_they.png';
+import dogUh from '../assets/dog_uh.png';
 import idkGirl from '../assets/images/characters/marquee/idk_girl_full.png';
 import './styles.css';
 
@@ -95,12 +97,13 @@ function Character() {
 const showcaseCharacters = [
   { name: 'A scientist in a lab coat', src: scientist, width: 585, height: 1723 },
   { name: 'A girl standing with her arms crossed', src: idkGirl, width: 643, height: 1857, groupEnd: true },
-  { name: 'A girl with blue hair', src: blueHairedGirl, width: 890, height: 2660, groupEnd: true },
   { name: 'A broad character in a hazmat suit', src: hazThick, width: 812, height: 1336, small: true },
   { name: 'A character in a hazmat suit', src: hazDude, width: 674, height: 1764 },
   { name: 'A large character in a hazmat suit', src: hazBig, width: 1170, height: 1754, groupEnd: true },
   { name: 'A horned warrior', src: bigGuy, width: 1126, height: 1628 },
   { name: 'An armored dog', src: armoredDog, width: 878, height: 1417, groupEnd: true },
+  { name: 'An emo character', src: emoThey, width: 984, height: 1838 },
+  { name: 'A small dog', src: dogUh, width: 1127, height: 1476, small: true, groupEnd: true, tight: true },
 ];
 
 function MarqueeTrack({ children, className = '', speed = 42 }) {
@@ -135,7 +138,7 @@ function CharacterMarquee() {
               {showcaseCharacters.map(character => (
                 <React.Fragment key={character.name}>
                   <div
-                    className={`character-slot${character.small ? ' character-slot-small' : ''}`}
+                    className={`character-slot${character.small ? ' character-slot-small' : ''}${character.tight ? ' character-slot-tight' : ''}`}
                     style={{ '--character-ratio': character.width / character.height }}
                   >
                     <img
@@ -221,8 +224,9 @@ function App() {
       <CharacterMarquee />
       <SecondArtMarquee />
       <section id="work" className="career-section" aria-labelledby="work-title">
-        <img className="computer-dude" src={computerDude} alt="A smiling cartoon computer" width="918" height="1027" loading="lazy" />
+        <img className="bottom-girl" src={blueHairedGirl} alt="A girl with blue hair" width="890" height="2660" loading="lazy" />
         <h2 id="work-title">I will add more stuff here when I feel like it :)</h2>
+        <img className="computer-dude" src={computerDude} alt="A smiling cartoon computer" width="918" height="1027" loading="lazy" />
         {/* <div className="career-details">
           <div className="work-experience">
             <article className="experience-entry">

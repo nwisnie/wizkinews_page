@@ -162,10 +162,7 @@ function CharacterMarquee() {
 
 function ArtMarquee() {
   const messages = [
-    'If I see another ad I\'m killing my dog',
-    'These fellas so PUSSY I jack off when I see em!',
-    'id fuck someone in the ass for some dumplings rn',
-    'why the fuck my@dick so small'
+    `hey there buddy chum pal friend buddy pal chum bud friend fella bruther amigo pal buddy friend chummy chum chum pal i don't mean to be rude my friend pal home slice bread slice dawg but i gotta warn ya if u take one more diddly darn step right there im going to have to diddly darn snap ur neck and wowza wouldn't that be a crummy juncture, huh? do yuo want that? do wish upon yourself to come into physical experience with a crummy juncture? because friend buddy chum friend chum pally pal chum friend if you keep this up well gosh diddly darn i just might have to get not so friendly with u my friendly friend friend pal friend buddy chum pally friend chum buddy...`
   ];
   return (
     <section id="art" className="art-banner" aria-labelledby="art-banner-title">
@@ -185,10 +182,7 @@ function ArtMarquee() {
 
 function SecondArtMarquee() {
   const messages = [
-    'If ur pussy don\'t smell like wet monkey scalp I do NOT want it',
-    'fuck all these kids getting iPhones for Christmas all I got was the clap smfh',
-    'morning pussy is dangerous it been marinating all night',
-    'swag punch a bitch'
+    `Anyways, um... I bought a whole bunch of shungite rocks, do you know what shungite is? Anybody know what shungite is? No, not Suge Knight, I think he's locked up in prison. I'm talkin' shungite. Anyways, it's a two billion year-old like, rock stone that protects against frequencies and unwanted frequencies that may be traveling in the air. That's my story, I bought a whole bunch of stuff. Put 'em around the la casa. Little pyramids, stuff like that.`
   ];
   return (
     <section className="art-banner" aria-labelledby="second-banner-title">
@@ -266,9 +260,9 @@ function App() {
       </section>
     </main>
     <footer className="site-footer">
-      <p className="footer-credit">made with <span>hate</span> by Noah W. &lt;3</p>
+      <p className="footer-credit">made with <span>love</span> by Noah W. &lt;3</p>
       <div className="social-links" aria-label="Social links">
-        <a href="#instagram" aria-label="Instagram">
+        <a href="https://www.instagram.com/wizkinews_art?mdxt=bjV3Njh3N2JuMm1j&utm_source=qr" aria-label="Instagram">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" className="icon-fill" /></svg>
         </a>
         <a href="https://www.youtube.com/@wizkinews9257" aria-label="YouTube">

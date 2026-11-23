@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "assets/web"
 
 
-def export(source, destination, *, width=None, height=None, lossless=True):
+def export(source, destination, *, width=None, height=None, crop_height=None, lossless=True):
     original = ROOT / "assets" / source
     target = OUTPUT / destination
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -26,6 +26,11 @@ def export(source, destination, *, width=None, height=None, lossless=True):
                 round(image.width * height / image.height), height
             )
             image = image.resize(size, Image.Resampling.LANCZOS)
+        if crop_height is not None:
+            bounds = image.getchannel("A").getbbox()
+            if bounds and bounds[3] > crop_height:
+                raise ValueError(f"{source} has artwork below row {crop_height}")
+            image = image.crop((0, 0, image.width, crop_height))
         image.save(target, "WEBP", lossless=lossless, quality=85, method=6)
         print(f"{destination}: {image.width} x {image.height}, "
               f"{original.stat().st_size:,} -> {target.stat().st_size:,} bytes")
@@ -33,7 +38,7 @@ def export(source, destination, *, width=None, height=None, lossless=True):
 
 for name in ("me_me_main", "me_me_arm", "me_me_eye_whites", "me_me_eye_left",
              "me_me_eye_right", "me_me_eyes_closed"):
-    export(f"images/character/{name}.png", f"character/{name}.webp", width=1000)
+    export(f"images/character/{name}.png", f"character/{name}.webp", width=1000, crop_height=1200)
 
 for name, source, height in (
     ("scientist", "images/characters/marquee/sci_guy_full.png", 860),

@@ -31,11 +31,13 @@ const randomBetween = (min, max) => min + Math.random() * (max - min);
 
 // Wait for the actual image elements, including the marquee's offscreen copy.
 // A failed request or decode settles too, so it cannot block the whole strip.
-function useImageReadiness() {
+function useImageReadiness(enabled = true) {
   const containerRef = useRef(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
+
     let cancelled = false;
     const cleanups = [];
     const images = [...containerRef.current.querySelectorAll('img')];
@@ -66,7 +68,7 @@ function useImageReadiness() {
       cancelled = true;
       cleanups.forEach(cleanup => cleanup());
     };
-  }, []);
+  }, [enabled]);
 
   return { containerRef, ready };
 }
@@ -116,23 +118,23 @@ function Character() {
     return () => { clearTimers(); motion.removeEventListener('change', restart); };
   }, []);
 
-  // Translate relative to each full-size canvas so movement scales with the artwork.
+  // Scale pupil movement from the source artwork's 2000 × 2400 visible area.
   const pupilStyle = (distance) => ({
-    transform: `translate(${gaze.x * distance / 2000 * 100}%, ${gaze.y * distance / 3 / 4050 * 100}%)`,
+    transform: `translate(${gaze.x * distance / 2000 * 100}%, ${gaze.y * distance / 3 / 2400 * 100}%)`,
   });
 
   return (
     <div ref={containerRef} className={`artwork${closed ? ' blinking' : ''}${ready ? ' is-ready' : ''}`} role="img" aria-busy={!ready} aria-label="An illustrated character waving, blinking, and glancing around">
-      <img src={mainImage} alt="" width="2000" height="4050" />
+      <img src={mainImage} alt="" width="1000" height="1200" />
       <div className="eyes-open">
-        <img src={eyeWhites} alt="" width="2000" height="4050" />
+        <img src={eyeWhites} alt="" width="1000" height="1200" />
         <div className="pupils" style={{ maskImage: `url(${eyeWhites})` }}>
-          <img className="pupil" src={eyeLeft} style={pupilStyle(9)} alt="" width="2000" height="4050" />
-          <img className="pupil" src={eyeRight} style={pupilStyle(18)} alt="" width="2000" height="4050" />
+          <img className="pupil" src={eyeLeft} style={pupilStyle(9)} alt="" width="1000" height="1200" />
+          <img className="pupil" src={eyeRight} style={pupilStyle(18)} alt="" width="1000" height="1200" />
         </div>
       </div>
-      <img className="eyes-closed" src={eyesClosed} alt="" width="2000" height="4050" />
-      <img className="arm" src={armImage} alt="" width="2000" height="4050" />
+      <img className="eyes-closed" src={eyesClosed} alt="" width="1000" height="1200" />
+      <img className="arm" src={armImage} alt="" width="1000" height="1200" />
     </div>
   );
 }
@@ -191,10 +193,28 @@ function ShowcaseImage({ character, duplicate }) {
 }
 
 function CharacterMarquee() {
-  const { containerRef, ready } = useImageReadiness();
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const { containerRef, ready } = useImageReadiness(shouldLoad);
+
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setShouldLoad(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '200px 0px' });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [containerRef]);
+
   return (
     <section ref={containerRef} className="character-marquee" aria-label="Character artwork" aria-busy={!ready}>
-      {!ready && <p className="marquee-loading" role="status">Loading artwork…</p>}
+      {shouldLoad && !ready && <p className="marquee-loading" role="status">Loading artwork…</p>}
       <div className="marquee-window">
         <MarqueeTrack className={`character-marquee-track${ready ? ' is-ready' : ''}`}>
           {[0, 1].map(group => (
@@ -205,7 +225,7 @@ function CharacterMarquee() {
                     className={`character-slot${character.small ? ' character-slot-small' : ''}${character.tight ? ' character-slot-tight' : ''}`}
                     style={{ '--character-ratio': character.width / character.height }}
                   >
-                    <ShowcaseImage character={character} duplicate={group === 1} />
+                    {shouldLoad && <ShowcaseImage character={character} duplicate={group === 1} />}
                   </div>
                   {character.groupEnd && <span className="character-group-separator" aria-hidden="true">X</span>}
                 </React.Fragment>
@@ -258,24 +278,67 @@ function SecondArtMarquee() {
   );
 }
 
+const gameUrl = '/games/multi-grappler/index.html';
+
 function GameEmbed() {
+  const [gameState, setGameState] = useState('ready');
+  const hasStarted = useRef(false);
+  const controlRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (hasStarted.current) controlRef.current.focus({ preventScroll: true });
+  }, [gameState]);
+
+  const startGame = () => {
+    hasStarted.current = true;
+    setGameState('playing');
+  };
+
+  const checkGameFrame = (event) => {
+    // The game shares the homepage's origin. Browser error pages are inaccessible.
+    if (!event.currentTarget.contentDocument) setGameState('blocked');
+  };
+
   return (
     <section id="play" className="game-section" aria-labelledby="game-title">
       <div className="game-content">
         <div className="game-stage">
-          <h2 id="game-title" className="game-tab">Speed Balls</h2>
+          <div className="game-toolbar">
+            <h2 id="game-title" className="game-tab">Speed Balls</h2>
+            {gameState === 'playing' && (
+              <button ref={controlRef} className="game-control" type="button" onClick={() => setGameState('ready')}>
+                Stop game
+              </button>
+            )}
+          </div>
           <div className="game-frame">
-            <div className="game-screen">
-              <iframe
-                id="speed-balls-game"
-                src="/games/multi-grappler/index.html"
-                title="Play Speed Balls"
-                width="1280"
-                height="720"
-                loading="lazy"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
+            <div className={`game-screen${gameState === 'ready' ? ' is-ready' : ''}`}>
+              {gameState === 'playing' && (
+                <iframe
+                  id="speed-balls-game"
+                  src={gameUrl}
+                  title="Play Speed Balls"
+                  width="1280"
+                  height="720"
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                  onLoad={checkGameFrame}
+                />
+              )}
+              {gameState === 'blocked' && (
+                <div className="game-recovery">
+                  <p>The game couldn’t load inside this page.</p>
+                  <a ref={controlRef} className="game-control" href={gameUrl} target="_blank" rel="noopener">
+                    Open game in a new tab
+                  </a>
+                  <button className="game-retry" type="button" onClick={startGame}>Try again here</button>
+                </div>
+              )}
+              {gameState === 'ready' && (
+                <button ref={controlRef} className="game-control game-play" type="button" onClick={startGame}>
+                  Play
+                </button>
+              )}
             </div>
           </div>
         </div>

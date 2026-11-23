@@ -1,24 +1,24 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import logo from '../assets/images/branding/Wizkinews_logo.png';
-import faviconIcon from '../assets/enemy_cube.png';
-import mainImage from '../assets/images/character/me_me_main.png';
-import armImage from '../assets/images/character/me_me_arm.png';
-import eyeWhites from '../assets/images/character/me_me_eye_whites.png';
-import eyeLeft from '../assets/images/character/me_me_eye_left.png';
-import eyeRight from '../assets/images/character/me_me_eye_right.png';
-import eyesClosed from '../assets/images/character/me_me_eyes_closed.png';
-import computerDude from '../assets/images/characters/computer/computer_dude.png';
-import bigGuy from '../assets/images/characters/marquee/big_guy_full.png';
-import armoredDog from '../assets/images/characters/marquee/grater_dog_full.png';
-import blueHairedGirl from '../assets/images/characters/marquee/girl_not_good_full.png';
-import scientist from '../assets/images/characters/marquee/sci_guy_full.png';
-import hazDude from '../assets/images/characters/marquee/haz_dude_full.png';
-import hazThick from '../assets/images/characters/marquee/haz_thick_full.png';
-import hazBig from '../assets/haz_big_better.png';
-import emoThey from '../assets/emo_they.png';
-import dogUh from '../assets/dog_uh.png';
-import idkGirl from '../assets/images/characters/marquee/idk_girl_full.png';
+import logo from '../assets/web/logo.webp';
+import faviconIcon from '../assets/web/favicon.png';
+import mainImage from '../assets/web/character/me_me_main.webp';
+import armImage from '../assets/web/character/me_me_arm.webp';
+import eyeWhites from '../assets/web/character/me_me_eye_whites.webp';
+import eyeLeft from '../assets/web/character/me_me_eye_left.webp';
+import eyeRight from '../assets/web/character/me_me_eye_right.webp';
+import eyesClosed from '../assets/web/character/me_me_eyes_closed.webp';
+import computerDude from '../assets/web/computer.webp';
+import bigGuy from '../assets/web/characters/big-guy.webp';
+import armoredDog from '../assets/web/characters/armored-dog.webp';
+import blueHairedGirl from '../assets/web/characters/blue-haired-girl.webp';
+import scientist from '../assets/web/characters/scientist.webp';
+import hazDude from '../assets/web/characters/haz-dude.webp';
+import hazThick from '../assets/web/characters/haz-thick.webp';
+import hazBig from '../assets/web/characters/haz-big.webp';
+import emoThey from '../assets/web/characters/emo-they.webp';
+import dogUh from '../assets/web/characters/dog.webp';
+import idkGirl from '../assets/web/characters/idk-girl.webp';
 import './styles.css';
 
 const favicon = document.createElement('link');
@@ -29,7 +29,50 @@ document.head.appendChild(favicon);
 
 const randomBetween = (min, max) => min + Math.random() * (max - min);
 
+// Wait for the actual image elements, including the marquee's offscreen copy.
+// A failed request or decode settles too, so it cannot block the whole strip.
+function useImageReadiness() {
+  const containerRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cleanups = [];
+    const images = [...containerRef.current.querySelectorAll('img')];
+    const pending = images.map(image => new Promise(resolve => {
+      const removeListeners = () => {
+        image.removeEventListener('load', finish);
+        image.removeEventListener('error', finish);
+      };
+      const finish = () => {
+        removeListeners();
+        if (image.naturalWidth && typeof image.decode === 'function') {
+          image.decode().catch(() => {}).then(resolve);
+        } else {
+          resolve();
+        }
+      };
+      cleanups.push(removeListeners);
+      if (image.complete) finish();
+      else {
+        image.addEventListener('load', finish, { once: true });
+        image.addEventListener('error', finish, { once: true });
+      }
+    }));
+    Promise.all(pending).then(() => {
+      if (!cancelled) setReady(true);
+    });
+    return () => {
+      cancelled = true;
+      cleanups.forEach(cleanup => cleanup());
+    };
+  }, []);
+
+  return { containerRef, ready };
+}
+
 function Character() {
+  const { containerRef, ready } = useImageReadiness();
   const [closed, setClosed] = useState(false);
   const [gaze, setGaze] = useState({ x: 0, y: 0 });
 
@@ -79,7 +122,7 @@ function Character() {
   });
 
   return (
-    <div className={`artwork${closed ? ' blinking' : ''}`} role="img" aria-label="An illustrated character waving, blinking, and glancing around">
+    <div ref={containerRef} className={`artwork${closed ? ' blinking' : ''}${ready ? ' is-ready' : ''}`} role="img" aria-busy={!ready} aria-label="An illustrated character waving, blinking, and glancing around">
       <img src={mainImage} alt="" width="2000" height="4050" />
       <div className="eyes-open">
         <img src={eyeWhites} alt="" width="2000" height="4050" />
@@ -99,7 +142,7 @@ const showcaseCharacters = [
   { name: 'A girl standing with her arms crossed', src: idkGirl, width: 643, height: 1857, groupEnd: true },
   { name: 'A broad character in a hazmat suit', src: hazThick, width: 812, height: 1336, small: true },
   { name: 'A character in a hazmat suit', src: hazDude, width: 674, height: 1764 },
-  { name: 'A large character in a hazmat suit', src: hazBig, width: 1170, height: 1754, groupEnd: true },
+  { name: 'A large character in a hazmat suit', src: hazBig, width: 1299, height: 1848, groupEnd: true },
   { name: 'A horned warrior', src: bigGuy, width: 1126, height: 1628 },
   { name: 'An armored dog', src: armoredDog, width: 878, height: 1417, groupEnd: true },
   { name: 'An emo character', src: emoThey, width: 984, height: 1838 },
@@ -128,11 +171,32 @@ function MarqueeTrack({ children, className = '', speed = 42 }) {
   return <div ref={trackRef} className={`marquee-track ${className}`}>{children}</div>;
 }
 
-function CharacterMarquee() {
+function ShowcaseImage({ character, duplicate }) {
+  const [failed, setFailed] = useState(false);
   return (
-    <section className="character-marquee" aria-label="Character artwork">
+    <>
+      <img
+        src={character.src}
+        alt={duplicate ? '' : character.name}
+        width={character.width}
+        height={character.height}
+        loading="eager"
+        decoding="async"
+        hidden={failed}
+        onError={() => setFailed(true)}
+      />
+      {failed && <span className="character-image-fallback" role="img" aria-label={`${character.name}: artwork unavailable`}>Artwork unavailable</span>}
+    </>
+  );
+}
+
+function CharacterMarquee() {
+  const { containerRef, ready } = useImageReadiness();
+  return (
+    <section ref={containerRef} className="character-marquee" aria-label="Character artwork" aria-busy={!ready}>
+      {!ready && <p className="marquee-loading" role="status">Loading artwork…</p>}
       <div className="marquee-window">
-        <MarqueeTrack className="character-marquee-track">
+        <MarqueeTrack className={`character-marquee-track${ready ? ' is-ready' : ''}`}>
           {[0, 1].map(group => (
             <div className="character-marquee-group" aria-hidden={group === 1} key={group}>
               {showcaseCharacters.map(character => (
@@ -141,13 +205,7 @@ function CharacterMarquee() {
                     className={`character-slot${character.small ? ' character-slot-small' : ''}${character.tight ? ' character-slot-tight' : ''}`}
                     style={{ '--character-ratio': character.width / character.height }}
                   >
-                    <img
-                      src={character.src}
-                      alt={group === 0 ? character.name : ''}
-                      width={character.width}
-                      height={character.height}
-                      loading="lazy"
-                    />
+                    <ShowcaseImage character={character} duplicate={group === 1} />
                   </div>
                   {character.groupEnd && <span className="character-group-separator" aria-hidden="true">X</span>}
                 </React.Fragment>
@@ -185,7 +243,7 @@ function SecondArtMarquee() {
     `Anyways, um... I bought a whole bunch of shungite rocks, do you know what shungite is? Anybody know what shungite is? No, not Suge Knight, I think he's locked up in prison. I'm talkin' shungite. Anyways, it's a two billion year-old like, rock stone that protects against frequencies and unwanted frequencies that may be traveling in the air. That's my story, I bought a whole bunch of stuff. Put 'em around the la casa. Little pyramids, stuff like that.`
   ];
   return (
-    <section className="art-banner" aria-labelledby="second-banner-title">
+    <section className="art-banner game-marquee" aria-labelledby="second-banner-title">
       <h2 className="visually-hidden" id="second-banner-title">More Art and Things</h2>
       <div className="marquee-window" aria-hidden="true">
         <MarqueeTrack speed={48}>
@@ -195,6 +253,33 @@ function SecondArtMarquee() {
             </div>
           ))}
         </MarqueeTrack>
+      </div>
+    </section>
+  );
+}
+
+function GameEmbed() {
+  return (
+    <section id="play" className="game-section" aria-labelledby="game-title">
+      <div className="game-content">
+        <div className="game-stage">
+          <h2 id="game-title" className="game-tab">Speed Balls</h2>
+          <div className="game-frame">
+            <div className="game-screen">
+              <iframe
+                id="speed-balls-game"
+                src="/games/multi-grappler/index.html"
+                title="Play Speed Balls"
+                width="1280"
+                height="720"
+                loading="lazy"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+        <p className="game-description">P2P Multiplayer + Level Editor</p>
       </div>
     </section>
   );
@@ -217,6 +302,7 @@ function App() {
       <ArtMarquee />
       <CharacterMarquee />
       <SecondArtMarquee />
+      <GameEmbed />
       <section id="work" className="career-section" aria-labelledby="work-title">
         <img className="bottom-girl" src={blueHairedGirl} alt="A girl with blue hair" width="890" height="2660" loading="lazy" />
         <h2 id="work-title">I will add more stuff here when I feel like it :)</h2>

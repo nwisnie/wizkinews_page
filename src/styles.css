@@ -2,7 +2,7 @@ html { overflow-x: hidden; }
 
 @font-face {
   font-family: 'Kosugi Maru';
-  src: url('../assets/KosugiMaru-Regular.ttf') format('truetype');
+  src: url('../assets/web/kosugi-maru-latin.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -13,7 +13,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--page-background) url('../assets/images/backgrounds/bg_sky.png') top center / 100% auto no-repeat;
+  background: var(--page-background) url('../assets/web/sky-desktop.webp') top center / 100% auto no-repeat;
   color: #151719;
   font-family: 'Kosugi Maru', sans-serif;
 }
@@ -36,7 +36,7 @@ body {
   z-index: -1;
   pointer-events: none;
   /* Fade only the backdrop, keeping the content fully opaque. */
-  background: url('../assets/images/backgrounds/logo_bg.png') -32px 65% / 100% auto no-repeat;
+  background: url('../assets/web/logo-bg.webp') -32px 65% / 100% auto no-repeat;
   opacity: 0.6;
 }
 h1 { margin: 0; }
@@ -57,7 +57,10 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   /* Keep the original canvases aligned; omit their empty lower half from layout. */
   aspect-ratio: 2000 / 2400;
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 250ms ease;
 }
+.artwork.is-ready { opacity: 1; }
 .artwork img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
 .eyes-open { position: absolute; top: 0; left: 0; width: 100%; aspect-ratio: 2000 / 4050; }
 .pupils { position: absolute; inset: 0; mask-size: 100% 100%; mask-repeat: no-repeat; mask-mode: alpha; }
@@ -74,6 +77,7 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   50% { transform: rotate(-28deg); }
 }
 @media (max-width: 700px) {
+  body { background-image: url('../assets/web/sky-mobile.webp'); }
   .title-card { grid-template-columns: 1fr; gap: 0; padding: 24px 24px 0; }
   .title-card::before { display: none; }
   header { text-align: center; }
@@ -148,10 +152,36 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   overflow: hidden;
   background: #fff;
 }
+.character-marquee-track {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.character-marquee-track:not(.is-ready) { animation-play-state: paused; }
+.character-marquee-track.is-ready { opacity: 1; animation-play-state: running; }
+.marquee-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 16px;
+  color: #555;
+}
+.character-image-fallback {
+  align-self: center;
+  max-width: 100%;
+  padding: 12px;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
 .character-marquee-group {
   display: flex;
   flex-shrink: 0;
+  min-width: 100vw;
   align-items: flex-end;
+  justify-content: space-around;
   gap: clamp(8px, 1.5vw, 20px);
   padding: 20px 10px;
 }
@@ -186,6 +216,7 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   object-fit: contain;
   object-position: bottom center;
 }
+.character-slot img[hidden] { display: none; }
 @keyframes computer-rock {
   0%, 100% { transform: rotate(-3deg); }
   50% { transform: rotate(3deg); }
@@ -269,6 +300,7 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
 @keyframes art-scroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
+  .character-marquee-track, .artwork { transition: none; }
 }
 /* Join the three marquee bands into one continuous block. */
 .title-card + .art-banner { margin-bottom: 0; }
@@ -296,3 +328,48 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
   align-items: center;
 }
 .site-nav-inner { color: #fff; font-size: 16px; }
+
+/* A game frame with title and description tabs. */
+.game-marquee { margin-bottom: 0; }
+.game-section { padding: 80px 32px; }
+.game-content { max-width: 1136px; margin: 0 auto; }
+.game-stage { position: relative; isolation: isolate; }
+.game-tab {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+  padding: 14px 28px 12px;
+  border-radius: 18px 18px 0 0;
+  background: #151719;
+  color: #fff;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.game-frame { padding: 6px; border-radius: 0 22px 0 22px; background: #151719; }
+.game-screen {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #000;
+}
+.game-screen iframe { display: block; width: 100%; height: 100%; border: 0; }
+.game-description {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 0 auto;
+  padding: 12px 22px 14px;
+  border-radius: 0 0 14px 14px;
+  background: #151719;
+  color: #fff;
+  font-size: clamp(14px, 1.6vw, 18px);
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  .game-section { padding: 64px 20px 48px; }
+  .game-tab { padding: 12px 20px 10px; border-radius: 14px 14px 0 0; }
+  .game-frame { padding: 4px; border-radius: 0 18px 0 18px; }
+  .game-screen { border-radius: 14px; }
+  .game-description { padding: 10px 16px 12px; border-radius: 0 0 12px 12px; }
+}

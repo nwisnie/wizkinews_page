@@ -66,13 +66,16 @@ when it finishes loading.
 To test a threaded build, enable **Variant → Thread Support** in the Godot Web
 export preset and re-export the full build. Vite dev and preview send the
 cross-origin isolation headers required by the threaded build on loopback.
-For the embedded game in production, serve the homepage with
-`Cross-Origin-Opener-Policy: same-origin` and serve both documents with
-`Cross-Origin-Embedder-Policy: require-corp`. On GitHub Pages, a separate
-top-level test build can use Godot’s default HTML shell with **Progressive Web
-App** and **Ensure Cross Origin Isolation Headers** enabled. Check that
-`window.crossOriginIsolated` is `true` in the game document. See
+On GitHub Pages, the homepage registers a root-scoped service worker that adds
+`Cross-Origin-Opener-Policy: same-origin` and
+`Cross-Origin-Embedder-Policy: require-corp` to the homepage and game responses.
+It may reload the homepage on the first visit. Open the deployed site over
+HTTPS in a fresh browser profile, click **Play**, and check that
+`window.crossOriginIsolated` is `true` in the homepage and game document. See
 [Godot’s Web export requirements](https://docs.godotengine.org/en/4.3/tutorials/export/exporting_for_web.html#serving-the-files).
+
+The worker and its MIT license come from
+[coi-serviceworker v0.1.7](https://github.com/gzuidhof/coi-serviceworker/tree/7b1d2a092d0d2dd2b7270b6f12f13605de26f214).
 
 ## Web asset exports and loading
 

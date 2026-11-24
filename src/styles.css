@@ -373,7 +373,30 @@ header p { width: calc(100% - 24px); margin: 16px 0 0; font-size: clamp(16px, 3.
 }
 .game-control:hover { background: #383c40; }
 .game-control:focus-visible { outline: 2px solid #151719; outline-offset: 3px; }
-.game-play { padding: 12px 22px; font-size: clamp(16px, 3vw, 24px); }
+.game-play {
+  padding: 14px 34px;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #151719;
+  font-size: clamp(20px, 3.5vw, 30px);
+  animation: game-play-bob 2.8s ease-in-out infinite;
+}
+.game-play-label { display: flex; }
+.game-play-label > span {
+  animation: game-play-wave 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--letter-index) * 90ms);
+}
+.game-play:focus-visible { animation-play-state: paused; }
+@keyframes game-play-bob {
+  0%, 100% { transform: translateY(3px); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes game-play-wave {
+  0%, 32%, 100% { transform: translateY(0); }
+  16% { transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-play, .game-play-label > span { animation: none; }
+}
 .game-recovery { display: grid; justify-items: center; gap: 8px; padding: 10px; text-align: center; }
 .game-recovery p { margin: 0; }
 .game-retry {

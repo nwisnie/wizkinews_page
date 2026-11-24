@@ -335,8 +335,12 @@ function GameEmbed() {
                 </div>
               )}
               {gameState === 'ready' && (
-                <button ref={controlRef} className="game-control game-play" type="button" onClick={startGame}>
-                  Play
+                <button ref={controlRef} className="game-control game-play" type="button" aria-label="Play" onClick={startGame}>
+                  <span className="game-play-label" aria-hidden="true">
+                    {[...'Play'].map((letter, index) => (
+                      <span key={letter} style={{ '--letter-index': index }}>{letter}</span>
+                    ))}
+                  </span>
                 </button>
               )}
             </div>
